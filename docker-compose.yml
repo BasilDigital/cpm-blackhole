@@ -1,0 +1,93 @@
+services:
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "3000:80"
+    depends_on:
+      - cpm-server
+      - cpm-client
+    volumes:
+      - ./nginx-prod/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks: 
+      -  cpm-network
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+  cpm-client:
+    image: cpm-app_cpm-client
+    container_name: cpm-client
+    build: 
+      context: ./cpm-client
+      dockerfile: ../client.Dockerfile
+    environment:
+      - PORT=3000
+    networks:
+      - cpm-client-network
+    depends_on:
+      - cpm-back
+  cpm-back:
+    image: cpm-app_cpm-back
+    container_name: cpm-back
+    build: 
+      context: ./cpm-back
+      dockerfile: ../back.Dockerfile
+    restart: always
+    environment:
+      - PORT=5080
+      - PG_HOST=db
+      - PG_DBNAME=${POSTGRES_DB}
+      - PG_USER=${POSTGRES_USER}
+      - PG_PASSWORD=${POSTGRES_PW}
+    networks:
+      - cpm-client-network
+      - cpm-back-network
+    depends_on:
+      db:
+        condition: service_healthy
+    
+    volumes:
+      - client-files:/usr/src/apps/server/public/userFiles
+  db:
+    image: postgres:17.4
+    container_name: cpm-postgres
+    restart: always
+    environment:
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PW}
+        - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./logs:/logs
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - ./customPostgresql.conf:/etc/postgresql.conf
+      - ./cpm-db/cp_market_05062025.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cpm-back-network
+  pgadmin:
+      container_name: pgadmin
+      image: dpage/pgadmin4:latest
+      environment:
+        - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
+        - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+      ports:
+        - "5050:80"
+      restart: always
+      depends_on:
+        db:
+          condition: service_healthy
+volumes:
+  postgres_data:
+  client-files:
+networks:
+  cpm-client-network:
+      driver: bridge
+  cpm-back-network:
+      driver: bridge
