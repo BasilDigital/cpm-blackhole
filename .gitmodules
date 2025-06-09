@@ -1,0 +1,9 @@
+[submodule "cpm-back"]
+	path = cpm-back
+	url = git@github.com:BasilDigital/cpm-back.git
+[submodule "cpm-client"]
+	path = cpm-client
+	url = git@github.com:BasilDigital/cpm-client.git
+[submodule "cpm-db"]
+	path = cpm-db
+	url = git@github.com:BasilDigital/cpm-db.git
