@@ -17,7 +17,7 @@ services:
         - nginx=./nginx-client
       dockerfile: ../client.Dockerfile
       args:
-        - EXPO_PUBLIC_BASE_URL=/api
+        - EXPO_PUBLIC_API_URL=/
     environment:
       - PORT=3000
     networks:
@@ -35,6 +35,7 @@ services:
       - DB_DATABASE=${POSTGRES_DB}
       - DB_USERNAME=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PW}
+      - JWT_SECRET=hui
     networks:
       - cpm-client-network
       - cpm-back-network
@@ -61,9 +62,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
-      - ./logs:/logs
-      - ./cpm-db/cp_market_05062025.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./cpm-db/cp_market_09062025.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - cpm-back-network
   pgadmin:

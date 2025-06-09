@@ -1,8 +1,8 @@
 FROM node:alpine AS build-stage
 WORKDIR /usr/src/apps/cpm-client
 COPY package*.json .
-ARG EXPO_PUBLIC_BASE_URL
-ENV EXPO_PUBLIC_BASE_URL=$EXPO_PUBLIC_BASE_URL
+ARG EXPO_PUBLIC_API_URL
+ENV EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL
 RUN  npm install;
 COPY . ./
 RUN npm i --unsafe-perm --allow-root -g npm@latest expo-cli@latest
