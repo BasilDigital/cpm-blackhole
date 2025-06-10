@@ -43,8 +43,6 @@ services:
       db:
         condition: service_healthy
     
-    volumes:
-      - client-files:/usr/src/apps/server/public/userFiles
   db:
     image: postgres:17.4
     container_name: cpm-postgres
@@ -63,6 +61,7 @@ services:
       - "5432:5432"
     volumes:
       - ./cpm-db/cp_market_09062025.sql:/docker-entrypoint-initdb.d/init.sql
+
     networks:
       - cpm-back-network
   pgadmin:
@@ -81,7 +80,6 @@ services:
       - cpm-back-network
 volumes:
   postgres_data:
-  client-files:
 networks:
   cpm-client-network:
       driver: bridge
